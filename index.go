@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"log"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
@@ -43,12 +44,21 @@ func main() {
 			"html": "<b>Hello, world!</b>",
 		})
 	})
-	
+
 	// 提供字面字符
 	r.GET("/purejson", func(c *gin.Context) {
 		c.PureJSON(200, gin.H{
 			"html": "<b>Hello, world!</b>",
 		})
+	})
+
+	// file upload
+	r.POST("/upload", func(c *gin.Context) {
+		file, _ := c.FormFile("file")
+		log.Println(file.Filename)
+		c.SaveUploadedFile(file, file.Filename)
+		c.String(http.StatusOK, fmt.Sprintf("'%s' uploaded!", file.Filename))
+
 	})
 
 	r.Run() // 监听并在 0.0.0.0:8080 上启动服务
