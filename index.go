@@ -4,8 +4,10 @@ import (
 	"fmt"
 	"log"
 	"net/http"
+	"time"
 
 	"github.com/gin-gonic/gin"
+
 )
 
 func main() {
@@ -59,6 +61,16 @@ func main() {
 		c.SaveUploadedFile(file, file.Filename)
 		c.String(http.StatusOK, fmt.Sprintf("'%s' uploaded!", file.Filename))
 
+	})
+
+	r.GET("/long_async", func(c *gin.Context) {
+		cCp := c.Copy()
+		go func() {
+
+			time.Sleep(5 * time.Second)
+			log.Println("Done! in path " + cCp.Request.URL.Path)
+
+		}()
 	})
 
 	r.Run() // 监听并在 0.0.0.0:8080 上启动服务
