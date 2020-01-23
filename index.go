@@ -12,6 +12,14 @@ import (
 
 )
 
+type formA struct {
+	Foo string `json:"foo" xml:"foo" binding:"required"`
+}
+
+type formB struct {
+	Bar string `json:"bar" xml:"bar" binding:"required"`
+}
+
 func main() {
 	r := gin.Default()
 	gin.DebugPrintRouteFunc = func(httpMethod, absolutePath, handlerName string, nuHandlers int) {
@@ -78,11 +86,23 @@ func main() {
 		}()
 	})
 
-	r.Run() // 监听并在 0.0.0.0:8080 上启动服务
-
 	// 日志
 	gin.DisableConsoleColor()
 	f, _ := os.Create("gin.log")
 	gin.DefaultWriter = io.MultiWriter(f)
+	r.GET("/testForm", func(c *gin.Context) {
+		objA := formA{}
+		objB := formB{}
+		if errA := c.ShouldBind(&objA); errA == nil {
+			c.String(http.StatusOK, `the body should be formA`)
+			// 因为现在 c.Request.Body 是 EOF，所以这里会报错。
+		} else if errB := c.ShouldBind(&objB); errB == nil {
+			c.String(http.StatusOK, `the body should be formB`)
+		} else {
+			c.String(http.StatusOK, `other`)
+		}
+	})
+
+	r.Run() // 监听并在 0.0.0.0:8080 上启动服务
 
 }
