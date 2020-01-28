@@ -103,6 +103,27 @@ func main() {
 		}
 	})
 
+	r.GET("/testa", testA)
+
 	r.Run() // 监听并在 0.0.0.0:8080 上启动服务
 
+}
+
+type StructA struct {
+	FieldA string `form:"field_a"`
+}
+
+type StructB struct {
+	NestedStruct StructA
+	FieldB       string `form:"field_b"`
+}
+
+// 绑定表单到结构体
+func testA(c *gin.Context) {
+	var b StructB
+	c.Bind(&b)
+	c.JSON(200, gin.H{
+		"a": b.NestedStruct,
+		"b": b.FieldB,
+	})
 }
